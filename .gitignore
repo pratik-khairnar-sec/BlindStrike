@@ -1,0 +1,27 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Scan output / reports (may contain target data - do not commit)
+*.json
+!package.json
+vulnerable*.txt
+scan_report*.json
+*.log
+
+# OS / editor cruft
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
