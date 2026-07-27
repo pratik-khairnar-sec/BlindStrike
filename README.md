@@ -1,5 +1,14 @@
 # Blind-SQLi
 
+========================================
+Blind-SQLi
+Blind SQL Injection Framework
+By Vaelion
+
+A lightweight **Time-Based Blind SQL Injection detection framework** designed for authorized penetration testing, bug bounty research, and security education.
+
+Blind-SQLi helps security researchers identify potential SQL injection points by measuring response-time differences using database-specific delay techniques.
+
 > Blind SQL Injection Testing Framework
 
 **Developed by Vaelion**
@@ -149,6 +158,21 @@ with `-p`.
 
 ---
 
+## Roadmap
+
+- [x] Time-Based Blind SQLi Detection
+- [x] Multiple Database Payload Support
+- [x] Multi-threaded Scanning
+- [x] JSON Reporting
+
+Future:
+
+- [ ] Boolean-Based Blind SQLi
+- [ ] Error-Based SQLi Detection
+- [ ] Burp Suite Extension
+- [ ] REST API Mode
+- [ ] Advanced Parameter Discovery
+
 ## Limitations
 
 - Detection relies purely on **response timing**, so it is sensitive to
@@ -197,7 +221,7 @@ misuse or damage caused by this tool. Use responsibly and at your own risk.
 
 **Vaelion**
 
-Security Researcher | Web Application Security | Bug Bounty
+Security Researcher | Web Application Security | Bug Bounty | Application Security
 
 ---
 
