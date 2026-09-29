@@ -92,7 +92,7 @@ BlindStrike is a lightweight security research tool designed to assist authorize
 ### Steps
 
 ```bash
-git clone https://github.com/pratikkhairnar160/BlindStrike.git
+git clone https://github.com/pratik-khairnar-sec/BlindStrike.git
 cd BlindStrike
 pip install -r requirements.txt
 ```
