@@ -5,7 +5,7 @@
 ![License](https://img.shields.io/badge/license-MIT%20%2B%20authorized--use-lightgrey)
 ![Status](https://img.shields.io/badge/status-stable-success)
 
-**Time-Based Blind SQL Injection Testing Framework — v7.0.0**
+**Time-Based & Boolean Blind SQL Injection Testing Framework — v7.0.0**
 
 By **Pratik Khairnar**
 
