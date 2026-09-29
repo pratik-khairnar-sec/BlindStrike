@@ -62,11 +62,12 @@ The CLI is fully backward compatible — every v1.0.0 command still works the sa
 
 ## Overview
 
-BlindStrike is a lightweight security research tool designed to assist authorized penetration testers and bug bounty researchers in identifying potential time-based SQL injection vulnerabilities.
+BlindStrike is a lightweight security research tool designed to assist authorized penetration testers and bug bounty researchers in identifying potential time-based and boolean-based blind SQL injection vulnerabilities.
 
 ## Features
 
 - Time-based Blind SQLi detection across MySQL, MSSQL, PostgreSQL, Oracle, generic, and XOR-based payload sets (in `payloads/`).
+- Boolean-based Blind SQLi detection using TRUE/FALSE response-content comparison with noise-floor awareness.
 - Single URL, or bulk scanning from a URL list.
 - Precise injection point via the `FUZZ` marker — URL, POST/PUT body, or header.
 - Multi-threaded scanning (configurable, 0–20 concurrent workers).
@@ -304,15 +305,25 @@ You can add your own payload files — one payload per line, `#` comments allowe
 
 ## Roadmap
 
-- [x] Time-Based Blind SQLi Detection
-- [x] Multiple Database Payload Support
-- [x] Multi-threaded Scanning
-- [x] JSON Reporting
-- [x] Baseline + confirmation to reduce false positives (v2.0.0)
-- [x] Precise injection point (`FUZZ`), POST/header support (v2.0.0)
-- [x] CSV / HTML Reporting (v2.0.0)
-- [x] Boolean-Based Blind SQLi Detection (v2.2.0)
-- [x] Telegram scan notifications (v2.2.0)
+### Implemented
+- Time-Based Blind SQLi Detection
+- Boolean-Based Blind SQLi Detection
+- Multiple Database Payload Support
+- Multi-threaded Scanning
+- Baseline + confirmation detection
+- Precise `FUZZ` injection points
+- POST/PUT/PATCH/Header injection
+- JSON / CSV / HTML Reporting
+- Telegram notifications and report delivery
+- Guided setup wizard
+- Persistent Telegram configuration
+- Stop-on-confirm workflow
+
+### Planned
+- Error-Based SQLi Detection
+- Burp Suite Extension
+- REST API Mode
+- Advanced Parameter Discovery
 
 Future:
 
