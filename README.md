@@ -325,12 +325,6 @@ You can add your own payload files — one payload per line, `#` comments allowe
 - REST API Mode
 - Advanced Parameter Discovery
 
-Future:
-
-- [ ] Error-Based SQLi Detection
-- [ ] Burp Suite Extension
-- [ ] REST API Mode
-- [ ] Advanced Parameter Discovery
 
 ## Limitations
 
