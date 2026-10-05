@@ -276,82 +276,276 @@ class ScanReport:
                 evidence = f"time={r.response_time}s | baseline={r.baseline_time}s{delta_txt}{timeout_tag}"
 
             safe_link = _html_escape(r.tested_url)
+            safe_payload = _html_escape(r.payload)
             link_html = f'<a href="{safe_link}" target="_blank" rel="noopener noreferrer">open ↗</a>'
+            badge_html = (
+                '<span class="badge badge-conf">CONFIRMED</span>'
+                if r.confirmed
+                else '<span class="badge badge-unconf">SUSPECT</span>'
+            )
+
+            # Build curl command for instant PoC reproduction
+            if r.method == "POST":
+                curl_cmd = f"curl -i -s -X POST '{safe_link}' -d '{safe_payload}'"
+            else:
+                curl_cmd = f"curl -i -s '{safe_link}'"
+            escaped_curl = curl_cmd.replace("'", "\\'")
 
             table_rows.append(
-                f"<tr class='{css}'><td>{_html_escape(r.url)}</td><td>{r.method}</td><td>{r.mode}</td>"
-                f"<td><code>{_html_escape(r.payload)}</code></td>"
-                f"<td>{evidence}</td>"
-                f"<td>{'YES' if r.confirmed else 'no'}</td>"
-                f"<td>{link_html}</td></tr>"
+                f"<tr class='row-{css}' data-status='{css}'>"
+                f"<td class='cell-url'>{_html_escape(r.url)}</td>"
+                f"<td><span class='method-tag'>{r.method}</span></td>"
+                f"<td><span class='mode-tag'>{r.mode}</span></td>"
+                f"<td><code class='payload-code'>{safe_payload}</code></td>"
+                f"<td class='cell-evidence'>{evidence}</td>"
+                f"<td>{badge_html}</td>"
+                f"<td>{link_html}</td>"
+                f"</tr>"
             )
 
             if r.confirmed:
                 poc_blocks.append(f"""
-<div class="poc">
-  <div class="poc-title">🎯 PROOF OF CONCEPT — CONFIRMED {'BOOLEAN-BASED' if r.mode == 'boolean' else 'TIME-BASED'} SQLi</div>
+<div class="poc-card">
+  <div class="poc-head">
+    <div class="poc-badge">CRITICAL // PROOF OF CONCEPT</div>
+    <div class="poc-title">CONFIRMED {'BOOLEAN-BASED' if r.mode == 'boolean' else 'TIME-BASED'} SQLi</div>
+    <button type="button" class="btn-copy-poc" onclick="copyText('{escaped_curl}', this)">📋 Copy curl PoC</button>
+  </div>
   <table class="poc-table">
-    <tr><th>Target</th><td>{_html_escape(r.url)}</td></tr>
-    <tr><th>Method</th><td>{r.method}</td></tr>
-    <tr><th>Payload</th><td><code>{_html_escape(r.payload)}</code></td></tr>
-    <tr><th>Evidence</th><td>{evidence}</td></tr>
-    <tr><th>Full request</th><td class="poc-url"><a href="{safe_link}" target="_blank" rel="noopener noreferrer">{safe_link} ↗</a></td></tr>
+    <tr><th>Target Endpoint</th><td><code>{_html_escape(r.url)}</code></td></tr>
+    <tr><th>HTTP Method</th><td><span class='method-tag'>{r.method}</span></td></tr>
+    <tr><th>Injected Payload</th><td><code class="payload-code">{safe_payload}</code></td></tr>
+    <tr><th>Empirical Evidence</th><td class="evidence-val">{evidence}</td></tr>
+    <tr><th>Replay URL</th><td class="poc-url"><a href="{safe_link}" target="_blank" rel="noopener noreferrer">{safe_link} ↗</a></td></tr>
+    <tr><th>PoC Terminal Command</th><td><pre class="curl-pre"><code>{curl_cmd}</code></pre></td></tr>
   </table>
-  <div class="poc-note">⚠ Automatically confirmed via one independent retest. Manually verify (open the link above, or replay in Burp/curl) before including in any report.</div>
+  <div class="poc-footer">
+    <span>🛡️ <b>Triage Verification:</b> Automatically verified through independent repeat delay confirmation. Verify in Burp Suite / terminal before bug bounty submission.</span>
+  </div>
 </div>""")
 
-        table_html = "\n".join(table_rows) if table_rows else "<tr><td colspan='7'>No vulnerabilities found.</td></tr>"
-        poc_html = "\n".join(poc_blocks) if poc_blocks else '<p class="dim">No confirmed findings in this scan.</p>'
+        table_html = "\n".join(table_rows) if table_rows else "<tr><td colspan='7' class='empty-cell'>No vulnerabilities flagged during this scan session.</td></tr>"
+        poc_html = "\n".join(poc_blocks) if poc_blocks else '<div class="empty-poc"><p>Zero confirmed vulnerabilities identified across all scanned targets.</p></div>'
 
         return f"""<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>{__tool__} Report</title>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{__tool__} v{__version__} Security Assessment Report</title>
 <style>
-:root {{ --bg:#0a0e0a; --panel:#0f1611; --border:#1c3a24; --green:#39ff88; --green-dim:#1f8f4e;
-         --text:#c9d1c9; --red:#ff5f5f; --yellow:#f5d76e; }}
-* {{ box-sizing: border-box; }}
-body {{ font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace; background:var(--bg); color:var(--text);
-        padding:2rem; max-width:1100px; margin:0 auto; }}
-h1 {{ color:var(--green); text-shadow:0 0 8px rgba(57,255,136,0.45); letter-spacing:1px; }}
-h2 {{ color:var(--green); border-bottom:1px solid var(--border); padding-bottom:6px; margin-top:2.5rem; }}
-table {{ border-collapse: collapse; width:100%; margin-top:1rem; }}
-th, td {{ border:1px solid var(--border); padding:8px 12px; text-align:left; font-size:0.88rem; }}
-th {{ background:#0d1a10; color:var(--green); }}
-tr.confirmed {{ background:rgba(57,255,136,0.06); }}
-tr.unconfirmed {{ background:rgba(245,215,110,0.05); }}
-code {{ color:#ff8f7b; word-break:break-all; background:#140f0a; padding:2px 4px; border-radius:3px; }}
-a {{ color:var(--green); }}
-a:hover {{ text-shadow:0 0 6px rgba(57,255,136,0.6); }}
-.summary {{ background:var(--panel); border:1px solid var(--border); padding:1rem 1.2rem; border-radius:8px;
-            margin-bottom:1rem; display:flex; flex-wrap:wrap; gap:0.4rem 2rem; }}
-.summary b {{ color:var(--green); }}
-.dim {{ color:#6b756b; }}
-.poc {{ background:var(--panel); border:1px solid var(--green-dim); border-left:4px solid var(--green);
-        border-radius:6px; padding:1rem 1.2rem; margin-bottom:1.2rem; box-shadow:0 0 14px rgba(57,255,136,0.06); }}
-.poc-title {{ color:var(--green); font-weight:bold; margin-bottom:0.6rem; letter-spacing:0.5px; }}
-.poc-table th {{ width:130px; background:transparent; color:#7fdca0; border:none; padding:4px 8px; }}
-.poc-table td {{ border:none; padding:4px 8px; }}
-.poc-url {{ word-break:break-all; }}
-.poc-note {{ margin-top:0.6rem; color:var(--yellow); font-size:0.85rem; }}
-</style></head>
+:root {{
+  --bg: #090d16; --bg-card: #0f172a; --panel: #131d31; --border: #1e293b;
+  --accent: #38bdf8; --accent-dim: #0284c7; --red: #f43f5e; --green: #10b981;
+  --yellow: #f59e0b; --text: #e2e8f0; --muted: #94a3b8; --code-bg: #050811;
+}}
+* {{ box-sizing: border-box; margin: 0; padding: 0; }}
+body {{
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", monospace;
+  background: var(--bg); color: var(--text); padding: 2rem 1.5rem; line-height: 1.6;
+}}
+.container {{ max-width: 1200px; margin: 0 auto; }}
+.header {{
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;
+  padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); gap: 1rem; margin-bottom: 2rem;
+}}
+.header-brand h1 {{
+  font-size: 1.7rem; font-weight: 800; letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #ffffff 30%, var(--accent) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}}
+.header-brand p {{ font-size: 0.88rem; color: var(--muted); margin-top: 4px; font-family: monospace; }}
+.header-actions {{ display: flex; gap: 0.6rem; }}
+.btn-action {{
+  background: var(--panel); border: 1px solid var(--border); color: var(--text);
+  padding: 6px 14px; border-radius: 6px; font-size: 0.82rem; cursor: pointer;
+  font-family: monospace; transition: all 0.15s ease;
+}}
+.btn-action:hover {{ border-color: var(--accent); color: var(--accent); }}
+
+.kpi-grid {{
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem; margin-bottom: 2rem;
+}}
+.kpi-card {{
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
+  padding: 1.2rem; transition: border-color 0.2s;
+}}
+.kpi-card:hover {{ border-color: rgba(56,189,248,0.4); }}
+.kpi-val {{ font-size: 1.8rem; font-weight: 800; font-family: monospace; margin-top: 4px; }}
+.kpi-val.conf {{ color: var(--red); }}
+.kpi-val.flag {{ color: var(--yellow); }}
+.kpi-val.total {{ color: var(--accent); }}
+.kpi-lbl {{ font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); }}
+
+.section-head {{
+  display: flex; justify-content: space-between; align-items: center;
+  margin: 2.5rem 0 1.2rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);
+}}
+.section-title {{ font-size: 1.25rem; font-weight: 700; color: #f1f5f9; display: flex; align-items: center; gap: 8px; }}
+.section-title span {{ color: var(--accent); }}
+
+.poc-card {{
+  background: var(--panel); border: 1px solid rgba(244,63,94,0.3); border-left: 4px solid var(--red);
+  border-radius: 8px; padding: 1.3rem; margin-bottom: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}}
+.poc-head {{ display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 1rem; }}
+.poc-badge {{ background: rgba(244,63,94,0.15); color: var(--red); font-size: 0.75rem; font-weight: 700; padding: 3px 9px; border-radius: 4px; font-family: monospace; letter-spacing: 0.5px; }}
+.poc-title {{ font-size: 1.05rem; font-weight: 700; color: #fff; flex: 1; margin-left: 6px; }}
+.btn-copy-poc {{
+  background: var(--bg); border: 1px solid var(--border); color: var(--accent);
+  padding: 5px 12px; border-radius: 4px; font-size: 0.8rem; font-family: monospace; cursor: pointer; transition: 0.15s;
+}}
+.btn-copy-poc:hover {{ background: var(--accent); color: #000; font-weight: bold; }}
+.poc-table {{ width: 100%; border-collapse: collapse; margin: 0.5rem 0; font-size: 0.88rem; }}
+.poc-table th {{ width: 160px; text-align: left; padding: 8px 10px; color: var(--muted); font-weight: 600; border-bottom: 1px solid rgba(255,255,255,0.05); }}
+.poc-table td {{ padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); word-break: break-all; }}
+.poc-url a {{ color: var(--accent); text-decoration: none; }}
+.poc-url a:hover {{ text-decoration: underline; }}
+.curl-pre {{
+  background: var(--code-bg); border: 1px solid var(--border); border-radius: 6px;
+  padding: 8px 12px; overflow-x: auto; color: #38bdf8; font-family: monospace; font-size: 0.82rem;
+}}
+.poc-footer {{
+  margin-top: 1rem; padding-top: 0.8rem; border-top: 1px dashed rgba(255,255,255,0.08);
+  font-size: 0.82rem; color: #cbd5e1;
+}}
+.poc-footer b {{ color: var(--yellow); }}
+
+.filter-bar {{ display: flex; gap: 8px; margin-bottom: 1rem; align-items: center; flex-wrap: wrap; }}
+.filter-btn {{
+  background: var(--bg-card); border: 1px solid var(--border); color: var(--muted);
+  padding: 5px 12px; border-radius: 5px; font-size: 0.82rem; font-family: monospace; cursor: pointer;
+}}
+.filter-btn.active {{ border-color: var(--accent); color: var(--accent); background: rgba(56,189,248,0.1); }}
+.search-input {{
+  margin-left: auto; background: var(--bg-card); border: 1px solid var(--border); color: #fff;
+  padding: 6px 12px; border-radius: 5px; font-size: 0.82rem; font-family: monospace; outline: none; min-width: 220px;
+}}
+.search-input:focus {{ border-color: var(--accent); }}
+
+.results-table {{ width: 100%; border-collapse: collapse; background: var(--bg-card); border-radius: 8px; overflow: hidden; border: 1px solid var(--border); font-size: 0.86rem; }}
+.results-table th {{ background: #0c1322; color: var(--accent); font-weight: 600; text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); font-family: monospace; font-size: 0.8rem; }}
+.results-table td {{ padding: 9px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }}
+.results-table tr.row-confirmed {{ background: rgba(244,63,94,0.05); }}
+.results-table tr.row-unconfirmed {{ background: rgba(245,158,11,0.03); }}
+.results-table tr:hover {{ background: rgba(255,255,255,0.03); }}
+.cell-url {{ font-family: monospace; color: #cbd5e1; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }}
+.cell-evidence {{ font-family: monospace; font-size: 0.8rem; color: #94a3b8; }}
+.method-tag {{ background: rgba(255,255,255,0.06); padding: 2px 7px; border-radius: 4px; font-weight: bold; font-size: 0.75rem; font-family: monospace; }}
+.mode-tag {{ color: var(--muted); font-size: 0.78rem; text-transform: uppercase; font-family: monospace; }}
+.payload-code {{ background: var(--code-bg); color: #fb7185; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; border: 1px solid rgba(255,255,255,0.05); }}
+.badge {{ padding: 3px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.5px; font-family: monospace; }}
+.badge-conf {{ background: rgba(244,63,94,0.2); color: #f43f5e; border: 1px solid rgba(244,63,94,0.4); }}
+.badge-unconf {{ background: rgba(245,158,11,0.2); color: #f59e0b; border: 1px solid rgba(245,158,11,0.4); }}
+.results-table a {{ color: var(--accent); text-decoration: none; }}
+.results-table a:hover {{ text-decoration: underline; }}
+.empty-cell, .empty-poc {{ padding: 2rem; text-align: center; color: var(--muted); font-style: italic; }}
+
+@media print {{
+  body {{ background: #fff; color: #000; }}
+  .header-actions, .filter-bar, .btn-copy-poc {{ display: none !important; }}
+  .poc-card, .results-table {{ border-color: #ccc; box-shadow: none; }}
+}}
+</style>
+<script>
+function copyText(text, btn) {{
+  navigator.clipboard.writeText(text).then(() => {{
+    const orig = btn.innerText;
+    btn.innerText = "✓ Copied!";
+    btn.style.color = "#10b981";
+    setTimeout(() => {{ btn.innerText = orig; btn.style.color = ""; }}, 1800);
+  }}).catch(() => {{
+    prompt("Copy command:", text);
+  }});
+}}
+function filterRows(status, btn) {{
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.results-table tbody tr').forEach(row => {{
+    if (status === 'all') {{
+      row.style.display = '';
+    }} else {{
+      row.style.display = row.dataset.status === status ? '' : 'none';
+    }}
+  }});
+}}
+function searchTable(query) {{
+  const q = query.toLowerCase();
+  document.querySelectorAll('.results-table tbody tr').forEach(row => {{
+    row.style.display = row.innerText.toLowerCase().includes(q) ? '' : 'none';
+  }});
+}}
+</script>
+</head>
 <body>
-<h1>&gt;_ {__tool__} v{__version__} — Scan Report</h1>
-<div class="summary">
-<span><b>Started:</b> {self.started_at}</span>
-<span><b>Finished:</b> {self.finished_at}</span>
-<span><b>Total tests:</b> {self.total_tests}</span>
-<span><b>Flagged:</b> {self.vulnerabilities_found}</span>
-<span><b>Confirmed:</b> {self.confirmed_vulnerabilities}</span>
+<div class="container">
+  <header class="header">
+    <div class="header-brand">
+      <h1>⚡ {__tool__} v{__version__} Security Assessment Report</h1>
+      <p>Automated Time-Based &amp; Boolean-Based Blind SQL Injection Intelligence</p>
+    </div>
+    <div class="header-actions">
+      <button type="button" class="btn-action" onclick="window.print()">🖨️ Print / PDF</button>
+    </div>
+  </header>
+
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-lbl">Total Scans Executed</div>
+      <div class="kpi-val total">{self.total_tests}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-lbl">Confirmed SQLi Flaws</div>
+      <div class="kpi-val conf">{self.confirmed_vulnerabilities}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-lbl">Flagged Suspect Hits</div>
+      <div class="kpi-val flag">{self.vulnerabilities_found}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-lbl">Execution Window</div>
+      <div class="kpi-val" style="font-size: 0.95rem; color: var(--muted); margin-top: 8px;">
+        {self.started_at}<br>to {self.finished_at}
+      </div>
+    </div>
+  </div>
+
+  <div class="section-head">
+    <div class="section-title"><span>🎯</span> PROOF OF CONCEPT — CONFIRMED FINDINGS</div>
+  </div>
+  {poc_html}
+
+  <div class="section-head">
+    <div class="section-title"><span>📋</span> Comprehensive Test Results</div>
+  </div>
+
+  <div class="filter-bar">
+    <button type="button" class="filter-btn active" onclick="filterRows('all', this)">All Results</button>
+    <button type="button" class="filter-btn" onclick="filterRows('confirmed', this)">Confirmed Only</button>
+    <button type="button" class="filter-btn" onclick="filterRows('unconfirmed', this)">Suspect Only</button>
+    <input type="text" class="search-input" placeholder="🔍 Search URLs, payloads..." oninput="searchTable(this.value)">
+  </div>
+
+  <table class="results-table">
+    <thead>
+      <tr>
+        <th>Target URL</th>
+        <th>Method</th>
+        <th>Mode</th>
+        <th>Injected Payload</th>
+        <th>Empirical Evidence</th>
+        <th>Verdict</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {table_html}
+    </tbody>
+  </table>
 </div>
-
-<h2>Proof of Concept — Confirmed Findings</h2>
-{poc_html}
-
-<h2>All Flagged Results</h2>
-<table>
-<tr><th>URL</th><th>Method</th><th>Mode</th><th>Payload</th><th>Evidence</th><th>Confirmed</th><th>Request</th></tr>
-{table_html}
-</table>
-</body></html>"""
+</body>
+</html>"""
 
 
 def _html_escape(s: str) -> str:

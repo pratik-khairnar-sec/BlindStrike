@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "blindstrike"
+version = "7.0.0"
+description = "Advanced Time-Based & Boolean-Based Blind SQL Injection Testing Framework"
+readme = "README.md"
+authors = [
+    { name = "Pratik Khairnar", email = "pratik.khairnar.sec@gmail.com" }
+]
+license = { text = "MIT" }
+keywords = ["sql-injection", "sqli", "blind-sqli", "bugbounty", "pentesting", "security-tools", "osint"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "requests>=2.31.0",
+    "urllib3>=2.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/pratik-khairnar-sec/BlindStrike"
+Repository = "https://github.com/pratik-khairnar-sec/BlindStrike.git"
+Issues = "https://github.com/pratik-khairnar-sec/BlindStrike/issues"
+
+[project.scripts]
+blindstrike = "blindstrike:main"
+
+[tool.setuptools]
+py-modules = ["blindstrike"]
+
+[tool.setuptools.package-data]
+"*" = ["payloads/*.txt"]

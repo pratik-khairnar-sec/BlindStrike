@@ -131,6 +131,7 @@ class TestTelegramConfigPersistence(unittest.TestCase):
         self.assertEqual(token, "123456789:ABCdefGHIjklMNOpqrsTUVwxyz1234")
         self.assertEqual(chat_id, "987654321")
 
+    @unittest.skipIf(os.name == "nt", "POSIX file permissions do not apply on Windows")
     def test_config_file_is_owner_only_permissions(self):
         blindstrike.save_telegram_config("tok", "chat")
         mode = oct(os.stat(blindstrike.CONFIG_PATH).st_mode)[-3:]
