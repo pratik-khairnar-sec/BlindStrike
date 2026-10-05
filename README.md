@@ -1,15 +1,13 @@
 # ⚡ BlindStrike
 
-<p align="center">
-  <pre align="center">
+```text
   ____  _ _           _ ____  _        _ _        
  | __ )| (_)_ __   __| / ___|| |_ _ __(_) | _____ 
  |  _ \| | | '_ \ / _` \___ \| __| '__| | |/ / _ \
  | |_) | | | | | | (_| |___) | |_| |  | |   <  __/
  |____/|_|_|_| |_|\__,_|____/ \__|_|  |_|_|\_\___|
   Advanced Blind SQL Injection Testing Framework
-  </pre>
-</p>
+```
 
 <p align="center">
   <img src="https://img.shields.io/badge/Version-v7.0.0--Stable-38bdf8?style=for-the-badge&logo=shield" alt="Version">
@@ -91,33 +89,33 @@ Blind SQL Injection is notoriously deceptive:
 
 ```mermaid
 flowchart TD
-    A[Target Input: URL / List / Header / Body with FUZZ] --> B[Phase 1: Baseline Probe]
-    B -->|Control Samples| C[Empirical Latency & Noise Floor Calculation]
+    A["Target Input: URL / List / Header / Body with FUZZ"] --> B["Phase 1: Baseline Probe"]
+    B -->|"Control Samples"| C["Empirical Latency & Noise Floor Calculation"]
     
-    C --> D{Selected Engine Mode}
+    C --> D{"Selected Engine Mode"}
     
-    D -->|--mode time| E[Time-Based Engine]
-    E -->|Inject SLEEP / WAITFOR / pg_sleep| F[Latency Measurement & Delta Calculation]
+    D -->|"--mode time"| E["Time-Based Engine"]
+    E -->|"Inject SLEEP / WAITFOR / pg_sleep"| F["Latency Measurement & Delta Calculation"]
     
-    D -->|--mode boolean| G[Boolean-Based Engine]
-    G -->|Inject TRUE|||FALSE Pairs| H[Noise-Floor Token Normalization & Content Diffing]
+    D -->|"--mode boolean"| G["Boolean-Based Engine"]
+    G -->|"Inject TRUE / FALSE Pairs"| H["Noise-Floor Token Normalization & Content Diffing"]
     
-    F --> I{Meets Delay Threshold?}
-    H --> J{TRUE matches & FALSE diverges?}
+    F --> I{"Meets Delay Threshold?"}
+    H --> J{"TRUE matches & FALSE diverges?"}
     
-    I -->|Yes| K[Automated Confirmation Retest]
-    I -->|No| L[Mark Clean]
-    J -->|Yes| K
-    J -->|No| L
+    I -->|"Yes"| K["Automated Confirmation Retest"]
+    I -->|"No"| L["Mark Clean"]
+    J -->|"Yes"| K
+    J -->|"No"| L
     
-    K -->|Retest Confirmed| M[Verdict: CONFIRMED VULNERABLE]
-    K -->|Retest Failed| N[Verdict: SUSPECT / UNCONFIRMED]
+    K -->|"Retest Confirmed"| M["Verdict: CONFIRMED VULNERABLE"]
+    K -->|"Retest Failed"| N["Verdict: SUSPECT / UNCONFIRMED"]
     
-    M --> O[Dispatch Channels]
-    O --> P[⚡ Real-time Telegram Alert]
-    O --> Q[📋 Colorized Terminal Summary]
-    O --> R[📄 Dark Glassmorphic HTML Report with 1-Click PoC]
-    O --> S[💾 JSON & CSV Machine Export]
+    M --> O["Dispatch Channels"]
+    O --> P["⚡ Real-time Telegram Alert"]
+    O --> Q["📋 Colorized Terminal Summary"]
+    O --> R["📄 Dark Glassmorphic HTML Report with 1-Click PoC"]
+    O --> S["💾 JSON & CSV Machine Export"]
 ```
 
 ---
