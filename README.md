@@ -24,6 +24,7 @@
   <a href="https://pratik-khairnar-sec.medium.com/"><img src="https://img.shields.io/badge/Medium-Deep_Dive_Writeup-black.svg?style=for-the-badge&logo=medium" alt="Medium"></a>
   <a href="https://x.com/PratikSec/status/2108584870293451190"><img src="https://img.shields.io/badge/X-Official_Thread-000000.svg?style=for-the-badge&logo=x" alt="X Thread"></a>
   <a href="https://pratik-khairnar-sec.github.io/portfolio/"><img src="https://img.shields.io/badge/Live_Sandbox-Portfolio_Demo-38bdf8.svg?style=for-the-badge&logo=shield" alt="Portfolio Sandbox"></a>
+  <a href="https://discord.com/users/1531910259080167494"><img src="https://img.shields.io/badge/Discord-pratik.khairnar.sec-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"></a>
 </p>
 
 <p align="center">
@@ -67,7 +68,7 @@ Traditional SQL injection tools like SQLMap and Ghauri are outstanding for full-
 Created by **[Pratik Khairnar (@pratik-khairnar-sec)](https://github.com/pratik-khairnar-sec)**, **BlindStrike** was purpose-built from the ground up to address these specific pain points. It is designed to be:
 - **Surgically Precise:** Tests only blind injection vectors without triggering aggressive WAF heuristics.
 - **Scientifically Grounded:** Uses empirical latency baselines and dynamic noise-floor normalization instead of arbitrary timing thresholds.
-- **Zero False-Positive Target:** Every flagged anomaly is subjected to an independent confirmation retest before being branded as `CONFIRMED`.
+- **Empirical Statistical Verification:** Every flagged anomaly is subjected to an independent confirmation retest before being branded as `CONFIRMED`.
 - **Triager-Ready:** Produces instant `curl` commands, structured JSON/CSV telemetry, and interactive HTML audit dashboards ready for bug bounty report submissions.
 
 ---
