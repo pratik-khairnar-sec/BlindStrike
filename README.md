@@ -28,7 +28,7 @@
 </p>
 
 <p align="center">
-  <img src="blindstrike_dashboard.png" alt="BlindStrike Tactical Dashboard" width="850">
+  <img src="assets/screenshots/blindstrike_dashboard.png" alt="BlindStrike Tactical Dashboard" width="850">
 </p>
 
 > 🎯 **BlindStrike** is a precision-engineered, lightweight security framework for identifying **Time-Based** and **Boolean-Based Blind SQL Injection** flaws in authorized bug bounty targets, web applications, and APIs. Featuring empirical baseline latency calibration, noise-floor content normalization, automated confirmation retests, real-time Telegram alerts, and glassmorphic HTML PoC reports.
@@ -98,6 +98,10 @@ Blind SQL Injection is notoriously deceptive:
 ---
 
 ## 🏗️ Architectural Pipeline & Execution Flow
+
+<p align="center">
+  <img src="assets/screenshots/blindstrike_architecture_diagram.jpg" alt="BlindStrike Full Architectural Blueprint" width="850">
+</p>
 
 ```mermaid
 flowchart TD
@@ -260,6 +264,10 @@ Pre-compiled, field-tested payload libraries located in the `payloads/` director
 ---
 
 ## 📊 Executive Reporting & 1-Click PoC
+
+<p align="center">
+  <img src="assets/screenshots/blindstrike_terminal_dashboard.jpg" alt="BlindStrike Terminal Execution & Glassmorphic PoC Dashboard" width="850">
+</p>
 
 BlindStrike generates standalone, dark-glassmorphic HTML reports (`--html-report report.html`):
 
